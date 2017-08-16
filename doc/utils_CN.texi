@@ -1,111 +1,95 @@
-@chapter Syntax
+@chapter 语法
 @c man begin SYNTAX
 
-This section documents the syntax and formats employed by the FFmpeg
-libraries and tools.
+本文描述了libavutil库提供的一些通用特性和实用程序。
 
 @anchor{quoting_and_escaping}
-@section Quoting and escaping
+@section 引用和转义
 
-FFmpeg adopts the following quoting and escaping mechanism, unless
-explicitly specified. The following rules are applied:
+FFmpeg采用以下引用和转义机制，除非显式指定。以下规则适用:
 
 @itemize
 @item
-@samp{'} and @samp{\} are special characters (respectively used for
-quoting and escaping). In addition to them, there might be other
-special characters depending on the specific syntax where the escaping
-and quoting are employed.
+@samp{'} 和 @samp{\} 是特殊的字符(分别用于引用和转义)。
+除了它们之外，还可能有其他特殊字符，取决于所使用的转义和引用的特定语法。
 
 @item
-A special character is escaped by prefixing it with a @samp{\}.
+一个特殊的字符是通过用@samp{\} 来转义的。
 
 @item
-All characters enclosed between @samp{''} are included literally in the
-parsed string. The quote character @samp{'} itself cannot be quoted,
-so you may need to close the quote and escape it.
+@samp{''} 的所有字符都包含在已解析的字符串中，引用字符 @samp{'} 本身不能被引用，
+因此您可能需要关闭引用并避免使用它。
 
 @item
-Leading and trailing whitespaces, unless escaped or quoted, are
-removed from the parsed string.
+除非转义或引用，否则将从已解析的字符串中删除。
 @end itemize
 
-Note that you may need to add a second level of escaping when using
-the command line or a script, which depends on the syntax of the
-adopted shell language.
+注意，在使用命令行或脚本时，您可能需要添加第二个级别的转义,
+这取决于所采用的shell语言的语法。
 
-The function @code{av_get_token} defined in
-@file{libavutil/avstring.h} can be used to parse a token quoted or
-escaped according to the rules defined above.
+函数@code{av_get_token}定义在@file{libavutil/avstring.h}中，可以被用途解析token或者转义的规则，
+转义的规则就是上面介绍的那些规则。
 
-The tool @file{tools/ffescape} in the FFmpeg source tree can be used
-to automatically quote or escape a string in a script.
+在FFmpeg的源代码目录中，@file{tools/ffescape}是可以用来自动解析转义字符的脚本。
 
-@subsection Examples
+@subsection 举例
 
 @itemize
 @item
-Escape the string @code{Crime d'Amour} containing the @code{'} special
-character:
+字符串@code{Crime d'Amour}中包含@code{'}字符
 @example
 Crime d\'Amour
 @end example
 
 @item
-The string above contains a quote, so the @code{'} needs to be escaped
-when quoting it:
+上面的字符串包含引用，所以@code{'}需要转义一下：
 @example
 'Crime d'\''Amour'
 @end example
 
 @item
-Include leading or trailing whitespaces using quoting:
+在前边或者后边有空白符号的话，例如这样：
 @example
 '  this string starts and ends with whitespaces  '
 @end example
 
 @item
-Escaping and quoting can be mixed together:
+转义和引用可以混合使用，例如：
 @example
 ' The string '\'string\'' is a string '
 @end example
 
 @item
-To include a literal @samp{\} you can use either escaping or quoting:
+包含 @samp{\} 可以使用转义或引用：
 @example
 'c:\foo' can be written as c:\\foo
 @end example
 @end itemize
 
 @anchor{date syntax}
-@section Date
+@section 日期
 
-The accepted syntax is:
+接受的语法如下：
 @example
 [(YYYY-MM-DD|YYYYMMDD)[T|t| ]]((HH:MM:SS[.m...]]])|(HHMMSS[.m...]]]))[Z]
 now
 @end example
 
-If the value is "now" it takes the current time.
+如果值是 "now" 则是获取当前时间。
 
-Time is local time unless Z is appended, in which case it is
-interpreted as UTC.
-If the year-month-day part is not specified it takes the current
-year-month-day.
+时间是本地时间，除非Z被追加，在这种情况下，它被解释为UTC。如果year-month-day部分没有指定的话，就是获得当前的year-month-day。
 
 @anchor{time duration syntax}
-@section Time duration
+@section duration时间
 
+duration可以支持两种表达方式：
 There are two accepted syntaxes for expressing time duration.
 
 @example
 [-][@var{HH}:]@var{MM}:@var{SS}[.@var{m}...]
 @end example
 
-@var{HH} expresses the number of hours, @var{MM} the number of minutes
-for a maximum of 2 digits, and @var{SS} the number of seconds for a
-maximum of 2 digits. The @var{m} at the end expresses decimal value for
-@var{SS}.
+@var{HH} 表示小时, @var{MM} 表示分钟，最大的两个数字 和 @var{SS} 表示秒的最大的两个数字，@var{m} 表示@var{SS}之后的小数部分。
 
 @emph{or}
 
@@ -113,32 +97,30 @@ maximum of 2 digits. The @var{m} at the end expresses decimal value for
 [-]@var{S}+[.@var{m}...]
 @end example
 
-@var{S} expresses the number of seconds, with the optional decimal part
-@var{m}.
+@var{S} 表示秒数，包含可选的小数部分@var{m}.
 
-In both expressions, the optional @samp{-} indicates negative duration.
+两种表达方式中，可以用@samp{-}表示负时间。
 
-@subsection Examples
+@subsection 举例
 
-The following examples are all valid time duration:
+下面是所有关于duration的表示的例子：
 
 @table @samp
 @item 55
-55 seconds
+55 秒
 
 @item 12:03:45
-12 hours, 03 minutes and 45 seconds
+12 小时, 03 分钟 和 45 秒
 
 @item 23.189
-23.189 seconds
+23.189 秒
 @end table
 
 @anchor{video size syntax}
-@section Video size
-Specify the size of the sourced video, it may be a string of the form
-@var{width}x@var{height}, or the name of a size abbreviation.
+@section 视频分辨率大小
+指定源视频的大小，它可能是一个字符串形式的widthxheight，或者一个大小缩写的名称
 
-The following abbreviations are recognized:
+以下缩写是公认的:
 @table @samp
 @item ntsc
 720x480
@@ -249,14 +231,12 @@ The following abbreviations are recognized:
 @end table
 
 @anchor{video rate syntax}
-@section Video rate
+@section 视频帧率
 
-Specify the frame rate of a video, expressed as the number of frames
-generated per second. It has to be a string in the format
-@var{frame_rate_num}/@var{frame_rate_den}, an integer number, a float
-number or a valid video frame rate abbreviation.
+指定视频的帧速率，表示为每秒生成的帧数。它必须是格式@var{frame_rate_num}/@var{frame_rate_den}格式的字符串，
+一个整数编号，一个浮点数或一个有效的视频帧速率缩写。
 
-The following abbreviations are recognized:
+以下缩写是公认的:
 @table @samp
 @item ntsc
 30000/1001
@@ -277,33 +257,28 @@ The following abbreviations are recognized:
 @end table
 
 @anchor{ratio syntax}
-@section Ratio
+@section 比率
 
-A ratio can be expressed as an expression, or in the form
-@var{numerator}:@var{denominator}.
+比率可以表示为表达式，也可以用@var{numerator}:@var{denominator}的形式表示。
 
-Note that a ratio with infinite (1/0) or negative value is
-considered valid, so you should check on the returned value if you
-want to exclude those values.
+请注意，与无穷大(1/0)或负数的比率被认为是有效的，
+所以如果您想要排除这些值，您应该检查返回的值。
 
-The undefined value can be expressed using the "0:0" string.
+未定义的值可以使用“0:0”字符串表示。
 
 @anchor{color syntax}
-@section Color
+@section 颜色
 
-It can be the name of a color as defined below (case insensitive match) or a
-@code{[0x|#]RRGGBB[AA]} sequence, possibly followed by @@ and a string
-representing the alpha component.
+它可以是下面定义的颜色的名称(大小写不敏感匹配)，或者是一个@code{[0x|#]RRGGBB[AA]}序列，
+可能后面是@@和表示alpha组件的字符串。
 
-The alpha component may be a string composed by "0x" followed by an
-hexadecimal number or a decimal number between 0.0 and 1.0, which
-represents the opacity value (@samp{0x00} or @samp{0.0} means completely
-transparent, @samp{0xff} or @samp{1.0} completely opaque). If the alpha
-component is not specified then @samp{0xff} is assumed.
+alpha组件可能是一个由“0x”组成的字符串，后面是一个十六进制数字，或者在@samp{0.0}和@samp{1.0}之间的十进制数，
+这表示不透明度值(“0x00”或“0.0”表示完全透明,“@samp{0xff}”或“@samp{1.0}”完全不透明)。
+如果没有指定alpha组件，则假定为“@samp{0xff}”。
 
-The string @samp{random} will result in a random color.
+字符串@samp{random} 将会随机选择一个颜色。
 
-The following names of colors are recognized:
+下列颜色的名称被识别：
 @table @samp
 @item AliceBlue
 0xF0F8FF
@@ -588,69 +563,66 @@ The following names of colors are recognized:
 @end table
 
 @anchor{channel layout syntax}
-@section Channel Layout
+@section 声道布局
 
-A channel layout specifies the spatial disposition of the channels in
-a multi-channel audio stream. To specify a channel layout, FFmpeg
-makes use of a special syntax.
+声道布局指定多声道音频流中的声道的空间配置。
+为了指定声道布局，FFmpeg使用一种特殊的语法。
 
-Individual channels are identified by an id, as given by the table
-below:
+单个通道由id标识，如下表所给出：
 @table @samp
 @item FL
-front left
+前左
 @item FR
-front right
+前右
 @item FC
-front center
+前中央
 @item LFE
-low frequency
+低频
 @item BL
-back left
+后左
 @item BR
-back right
+后右
 @item FLC
-front left-of-center
+前、中间的左侧
 @item FRC
-front right-of-center
+前、中间的右侧
 @item BC
-back center
+后、中央
 @item SL
-side left
+左侧面
 @item SR
-side right
+右侧面
 @item TC
-top center
+上、中央
 @item TFL
-top front left
+上、前、左
 @item TFC
-top front center
+上、前、中央
 @item TFR
-top front right
+上、前、右
 @item TBL
-top back left
+上、后、左
 @item TBC
-top back center
+上、后、中央
 @item TBR
-top back right
+上、后、右
 @item DL
-downmix left
+下混合、左
 @item DR
-downmix right
+下混合、右
 @item WL
-wide left
+向左扩大
 @item WR
-wide right
+向右扩大
 @item SDL
-surround direct left
+向左环绕
 @item SDR
-surround direct right
+向右环绕
 @item LFE2
-low frequency 2
+低频2
 @end table
 
-Standard channel layout compositions can be specified by using the
-following identifiers:
+可以使用以下标识符指定标准通道布局组合：
 @table @samp
 @item mono
 FC
@@ -708,61 +680,47 @@ FL+FR+FC+BL+BR+BC+SL+SR
 DL+DR
 @end table
 
-A custom channel layout can be specified as a sequence of terms, separated by
-'+' or '|'. Each term can be:
+自定义声道布局可以指定为一个序列，可以用'+' 或 '|' 分隔：
 @itemize
 @item
-the name of a standard channel layout (e.g. @samp{mono},
-@samp{stereo}, @samp{4.0}, @samp{quad}, @samp{5.0}, etc.)
+标准通道布局的名称（例如：@samp{mono},@samp{stereo}, @samp{4.0}, @samp{quad}, @samp{5.0}, 等）
 
 @item
-the name of a single channel (e.g. @samp{FL}, @samp{FR}, @samp{FC}, @samp{LFE}, etc.)
+单声道布局的名称（例如：@samp{FL}, @samp{FR}, @samp{FC}, @samp{LFE}，等）
 
 @item
-a number of channels, in decimal, followed by 'c', yielding the default channel
-layout for that number of channels (see the function
-@code{av_get_default_channel_layout}). Note that not all channel counts have a
-default layout.
+在十进制中，有许多声道，后面是“c”，为该声道提供默认的通道布局。（参考@code{av_get_default_channel_layout}），
+注意，并非所有声道计数都有一个默认的布局。
 
 @item
-a number of channels, in decimal, followed by 'C', yielding an unknown channel
-layout with the specified number of channels. Note that not all channel layout
-specification strings support unknown channel layouts.
+在十进制中，有许多声道，后面是“C”，以指定的声道数目生成一个未知的声道布局。
+注意，不是所有的声道布局规范字符串都支持未知的声道布局
 
 @item
-a channel layout mask, in hexadecimal starting with "0x" (see the
-@code{AV_CH_*} macros in @file{libavutil/channel_layout.h}.
+一个通道布局掩码，以十六进制开始，以“0x”开头（参考@file{libavutil/channel_layout.h}中定义的@code{AV_CH_*}宏）
 @end itemize
 
-Before libavutil version 53 the trailing character "c" to specify a number of
-channels was optional, but now it is required, while a channel layout mask can
-also be specified as a decimal number (if and only if not followed by "c" or "C").
+在libavutil version 53 之前，后面的字符“c”指定许多声道是可选的，但是现在必选的，
+而声道布局掩码也可以被指定为十进制数(如果不跟随“c”或“c”)。
 
-See also the function @code{av_get_channel_layout} defined in
-@file{libavutil/channel_layout.h}.
+参考@file{libavutil/channel_layout.h}中电仪的@code{av_get_channel_layout}
 @c man end SYNTAX
 
-@chapter Expression Evaluation
+@chapter 表达式求值
 @c man begin EXPRESSION EVALUATION
 
-When evaluating an arithmetic expression, FFmpeg uses an internal
-formula evaluator, implemented through the @file{libavutil/eval.h}
-interface.
+当计算一个算术表达式时，FFmpeg使用内部公式求值器，在@file{libavutil/eval.h}中实现的接口。
 
-An expression may contain unary, binary operators, constants, and
-functions.
+表达式可能包含一元、二进制运算符、常量和函数。
 
-Two expressions @var{expr1} and @var{expr2} can be combined to form
-another expression "@var{expr1};@var{expr2}".
-@var{expr1} and @var{expr2} are evaluated in turn, and the new
-expression evaluates to the value of @var{expr2}.
+两个表达式@var{expr1}和@var{expr2}可以组合在一起形成另一个表达式“@var{expr1};@var{expr2}”。
+对@var{expr1}和@var{expr2}进行了相应的评估，新表达式求值为@var{expr2}的值。
 
-The following binary operators are available: @code{+}, @code{-},
-@code{*}, @code{/}, @code{^}.
+下面的二进制操作符是可用的: @code{+}, @code{-}, @code{*}, @code{/}, @code{^}.
 
-The following unary operators are available: @code{+}, @code{-}.
+以下的一元运算符是可用的: @code{+}, @code{-}.
 
-The following functions are available:
+下面的函数是可用的：
 @table @option
 @item abs(x)
 计算 @var{x} 的绝对值.
@@ -948,35 +906,30 @@ The following functions are available:
 黄金比例 (1+sqrt(5))/2, 约等于 1.618
 @end table
 
-Assuming that an expression is considered "true" if it has a non-zero
-value, note that:
+假设一个表达式被认为是"真"如果它有非零值
+注意：
 
-@code{*} works like AND
+@code{*} 像AND一样工作
 
-@code{+} works like OR
+@code{+} 像OR一样工作
 
-For example the construct:
+例如下面构建的例子：
 @example
 if (A AND B) then C
 @end example
-is equivalent to:
+等同于：
 @example
 if(A*B, C)
 @end example
 
-In your C code, you can extend the list of unary and binary functions,
-and define recognized constants, so that they are available for your
-expressions.
+在您的C代码中，您可以扩展unary和二进制函数的列表，并定义已识别的常量，
+以便它们可以用于您的表达式。
 
-The evaluator also recognizes the International System unit prefixes.
-If 'i' is appended after the prefix, binary prefixes are used, which
-are based on powers of 1024 instead of powers of 1000.
-The 'B' postfix multiplies the value by 8, and can be appended after a
-unit prefix or used alone. This allows using for example 'KB', 'MiB',
-'G' and 'B' as number postfix.
+评估是根据能识别的国际系统单位前缀。如果“i”是在前缀后面加的，则使用二进制前缀，
+它基于1024的幂而不是1000的幂。“B”后缀将值乘以8，并且可以在一个单元前缀或单独使用后附加。
+这允许使用“KB”、“MiB”、“G”和“B”作为数字后缀。
 
-The list of available International System prefixes follows, with
-indication of the corresponding powers of 10 and of 2.
+可用的国际系统前缀的列表如下，显示了10和2的相应的幂。
 @table @option
 @item y
 10^-24 / 2^-80
@@ -1022,31 +975,30 @@ indication of the corresponding powers of 10 and of 2.
 
 @c man end EXPRESSION EVALUATION
 
-@chapter OpenCL Options
+@chapter OpenCL操作
 @c man begin OPENCL OPTIONS
 
-When FFmpeg is configured with @code{--enable-opencl}, it is possible
-to set the options for the global OpenCL context.
+当FFmpeg的编译配置选项加上了@code{--enable-opencl}，FFmpeg将会支持全局的OpenCL的上下文
 
-The list of supported options follows:
+支持的选项列表如下：
 
 @table @option
 @item build_options
-Set build options used to compile the registered kernels.
 
-See reference "OpenCL Specification Version: 1.2 chapter 5.6.4".
+设置用于编译已注册内核的构建选项。
+
+参见参考“OpenCL规范版本:1.2章5.6.4”。
 
 @item platform_idx
-Select the index of the platform to run OpenCL code.
+选择平台的索引来运行OpenCL代码。
 
-The specified index must be one of the indexes in the device list
-which can be obtained with @code{ffmpeg -opencl_bench} or @code{av_opencl_get_device_list()}.
+指定的索引必须是设备列表中的索引之一，它可以使用ffmpeg的 @code{-opencl_bench}或@code{av_opencl_get_device_list()}获得。
 
 @item device_idx
-Select the index of the device used to run OpenCL code.
+选择用于运行OpenCL代码的设备的索引。
 
-The specified index must be one of the indexes in the device list which
-can be obtained with @code{ffmpeg -opencl_bench} or @code{av_opencl_get_device_list()}.
+
+指定的索引必须是设备列表中的索引之一，它可以使用ffmpeg的 @code{-opencl_bench}或@code{av_opencl_get_device_list()}获得。
 
 @end table
 

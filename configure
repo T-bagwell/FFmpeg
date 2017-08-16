@@ -1639,6 +1639,7 @@ LIBRARY_LIST="
     avformat
     avresample
     avutil
+    avutil_CN
     postproc
     swresample
     swscale

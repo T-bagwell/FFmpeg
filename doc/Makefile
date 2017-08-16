@@ -7,6 +7,7 @@ LIBRARIES-$(CONFIG_AVDEVICE)   += libavdevice
 LIBRARIES-$(CONFIG_AVFILTER)   += libavfilter
 
 COMPONENTS-$(CONFIG_AVUTIL)     += ffmpeg-utils
+COMPONENTS-$(CONFIG_AVUTIL_CN)  += ffmpeg-utils_CN
 COMPONENTS-$(CONFIG_SWSCALE)    += ffmpeg-scaler
 COMPONENTS-$(CONFIG_SWRESAMPLE) += ffmpeg-resampler
 COMPONENTS-$(CONFIG_AVCODEC)    += ffmpeg-codecs ffmpeg-bitstream-filters
