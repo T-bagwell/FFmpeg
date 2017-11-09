@@ -1,0 +1,383 @@
+\input texinfo @c -*- texinfo -*-
+@documentencoding UTF-8
+
+@settitle 使用Git开发FFmpeg
+
+@titlepage
+@center @titlefont{使用Git开发FFmpeg}
+@end titlepage
+
+@top
+
+@contents
+
+@chapter 介绍
+
+本文档的目的是在一组有用的Git命令上提供一些快速的入手说明。
+您应该始终使用Git提供的详细的文档，这了只是大概的介绍一些常用的:
+
+@example
+git --help
+man git
+@end example
+
+查看可用的子命令。
+
+@example
+git <command> --help
+man git-<command>
+@end example
+
+查看子命令的详细信息。
+
+更多信息可以在下面这个连接中看到:
+@url{http://gitref.org, Git 参考}.
+
+关于Git项目的更多信息可以访问:
+@url{http://git-scm.com/, Git 网站}.
+
+当你遇到Git相关的问题时，可以参考这个网站，这个网站里面的东西十分详细。
+
+下面这些信息只是Git使用基础，和一些FFmpeg常用操作的指导，对于为FFmpeg做贡献基本够用。
+
+@chapter 基本使用信息
+
+@section 获得Git
+
+你可以在 @url{http://git-scm.com/} 下载git软件
+大多数的操作系统都会提供Git安装包，比如yum、brew、apt等。
+
+
+@section 克隆源码树
+
+@example
+git clone git://source.ffmpeg.org/ffmpeg <target>
+@end example
+
+这个命令执行后，会将FFmpeg的源代码克隆一份到目录@var{<target>}。
+
+@example
+git clone git@@source.ffmpeg.org:ffmpeg <target>
+@end example
+
+这条命令执行后，会将FFmpeg源代码克隆一份到@var{<target>} 并且可以将你的修改push到远程库。
+
+@example
+git clone gil@@ffmpeg.org:ffmpeg-web <target>
+@end example
+
+这条命令执行后，会将FFmpeg官方网站的源代码克隆一份到@var{<target>}，
+并且你可以将本地的修改push到远程服务器。
+(注意：@var{gil} 使用的是gitolite，不是@var{git}输错了。)
+
+如果你没有ffmpeg-web库的push权限，你可以创建本地修改生成的patch，然后把patch提交给ffmpeg-devel。
+
+@example
+git clone git://ffmpeg.org/ffmpeg-web <target>
+@end example
+
+先确认你的checkout中没有Windows下面的行结束符，
+否则你你编译的时候会报错，可以通过命令配置：
+
+@example
+git config --global core.autocrlf false
+@end example
+
+
+@anchor{升级源码树到最新版本}
+@section 升级源码树到最新版本
+
+@example
+git pull (--rebase)
+@end example
+
+从track分支中pull最新的更改。跟踪的分支可以是远程的。
+在默认情况下，master 分支的track是在远程的源分支。。
+
+@float IMPORTANT
+@command{--rebase} (see below) is recommended.
+@end float
+
+@section Rebase本地分支s
+
+@example
+git pull --rebase
+@end example
+
+从主存储库获取更改并重新播放本地提交。
+这需要在FFmpeg的主树顶部保留所有本地更改。主树将拒绝执行合并提交。
+
+
+@section 添加/删除 文件/目录
+
+@example
+git add [-A] <filename/dirname>
+git rm [-r] <filename/dirname>
+@end example
+
+Git需要通知您对工作目录所做的所有更改，从而使文件出现或消失。
+跨文件的行移动被自动跟踪。
+
+
+@section 查看修改信息
+
+@example
+git diff <filename(s)>
+@end example
+
+将会显示本地尚未提交的修改。
+
+
+@section 检查更新日志
+
+@example
+git log <filename(s)>
+@end example
+
+你也可以使用图像工具例如 @command{gitview} 或者 @command{gitk}，
+或者ffmpeg的代码页面@url{http://source.ffmpeg.org/}。
+
+@section 检查源码树状态
+
+@example
+git status
+@end example
+
+查看本地的所有修改(添加信息、修改信息、删除信息等)。
+
+
+@section 提交
+
+@example
+git diff --check
+@end example
+
+在提交代码之前对修改过的信息做的再次check，无论这个操作多么不重要，每次提交之前都会确认一下。
+
+通过这个提交可以降低错误修改或者操作率。
+
+对于cosmetics-only的提交，你获得道德是一个空的输出
+
+@example
+git diff -w -b <filename(s)>
+@end example
+
+也可以check输出
+
+@example
+git status
+@end example
+
+确定untrack的文件或者删除相关的信息。然后通过add参数做添加track.
+
+@example
+git add [-i|-p|-A] <filenames/dirnames>
+@end example
+
+
+下面是配置Git，将你的用户名和email配置进去
+
+@example
+git config --global user.name "My Name"
+git config --global user.email my@@email.invalid
+@end example
+
+通过使用 @option{--global} 设置全局的git控制信息
+Git将会选择修改过的文件的修改内容提交，你可以添加commit信息以备生成patch用。
+
+
+@example
+git commit
+@end example
+
+Git将会提交你本地的修改内容到你本地的分支。
+
+提交信息会携带你的git config配置的信息，提交时会要求你编辑提交关于代码修改的信息。
+
+@example
+git config --global core.editor
+@end example
+
+或者设置如下的环境变量
+@var{GIT_EDITOR}, @var{VISUAL} or @var{EDITOR}.
+
+提交的Log信息需要使用编辑器，通过这个命令可以设置编辑器，添加的代码修改信息最好是让人一看就明白。
+如果只是写"bug fix" 或者 "10l"是很屎的风格。最好写清楚一些，尤其是代码修改的作用。
+
+提交的第一行信息将会被作为生成的patch的文件名，而patch最好使用 @command{git format-patch} 生成。
+
+@section patchset准备工作
+
+@example
+git format-patch <commit> [-o directory]
+@end example
+
+这条命令执行后将会为一系列patch集生成一个提交的概要信息主要是总结@var{<commit>} 和 @var{HEAD}. 例如.
+
+@example
+git format-patch origin/master
+@end example
+
+将会生成一系列patch集合，也可以使用更简短的方式。
+
+@example
+git format-patch -n
+@end example
+
+根据@var{n}次提交的信息生成多个patch，patch个数是@var{n}.
+生成的patch默认是在命令行执行的当前目录。
+
+@section 提交Patchset和Review工作
+
+@example
+git send-email <commit list|directory>
+@end example
+
+将会发送patch列表给maillist，当然，前提是你需要配置git里面的sendemail相关的配置。
+
+
+@section 重命名/迁移/复制 文件或内容
+
+Git自动跟踪这些更改，并进行正常提交。
+
+@example
+mv/cp path/file otherpath/otherfile
+git add [-A] .
+git commit
+@end example
+
+
+@chapter Git 配置
+
+最好配置一下git的配置信息，例如你自己的信息，你本地的FFmpeg库的信息等。
+
+@section 个人 Git 安装
+
+添加下面的信息到你的@file{~/.gitconfig}来帮助你的@command{git send-email}和
+@command{git format-patch}监测rename修改的信息。
+
+@example
+[diff]
+        renames = copy
+@end example
+
+@section 库配置
+
+想让@command{git send-email}自动发patch到ffmpeg-devel的maillist，可以添加下面这个配置到
+@file{/path/to/ffmpeg/repository/.git/config}:
+
+@example
+[sendemail]
+        to = ffmpeg-devel@@ffmpeg.org
+@end example
+
+@chapter FFmpeg特定的操作
+
+@section 回退commits
+
+@example
+git reset <commit>
+@end example
+
+@command{git reset} 将会将本地的代码清除到@var{<commit>}提交之前的代码，@var{<commit>}提交之后的代码全部会被清掉
+
+
+@example
+git commit --amend
+@end example
+
+提交到最后一次修改的commit中,可以理解为合并当前的修改与上次的commit的修改。
+
+@example
+git rebase -i origin/master
+@end example
+
+重新操作本地主库的提交，包括merge或删除处理
+
+@float 注意
+@command{git reset}, @command{git commit --amend} and @command{git rebase}
+重写历史，所以你应该只在你本地操作，提交的话将会被拒绝
+@end float
+
+@example
+git revert <commit>
+@end example
+
+@command{git revert} 将会回退指定的commit。比如有一次提交有问题，可以通过这个操作取消那一次操作。
+
+@section Push修改到远程库
+
+@example
+git push origin master --dry-run
+@end example
+
+模拟将本地master分支push到默认的远程(@var{origin})master分支，并且列出哪个分支的提交将会被push。
+如果本地和远程树不同步，Git将阻止您push更改。
+参考 @ref{升级源码树到最新版本}.
+
+@example
+git remote add <name> <url>
+@end example
+
+如果您想要将本地分支推到远程主机上，则可以使用名称引用添加额外的远程库。
+
+@example
+git push <remote> <refspec>
+@end example
+
+将修改push到@var{<remote>}库
+省略@var{<refspec>}进行@command{git push}操作将会更新所有与本地的branches相同的远程的branches
+
+@section 找到特定的svn版本
+
+从Git 1.8.1版本开始支持@samp{:/foo}语法，该语法可以通过正则表达式指定提交。
+参考man gitrevisions
+
+@example
+git show :/'as revision 23456'
+@end example
+
+将会显示svn的关于@samp{r23456}相关的修改。老版本的Git查找@command{git log}输出是最简单的方法。
+
+这个提交会可以checkout，用下面这个命令可以搞定：
+
+@example
+git checkout -b svn_23456 :/'as revision 23456'
+@end example
+
+或者小于1.7.1版本的Git用这条命令:
+
+@example
+git checkout -b svn_23456 $SHA1
+@end example
+
+@var{$SHA1}是通过@command{git log}查看到的commit的hash
+
+
+@chapter push checklist之前的准备
+
+在提交代码之前一定要仔细确认，多确认几遍，保证无误，最好有一个清单。
+有一些确认的步骤是必要的，比如push错误的comment，拼写错误等，多确认几次。
+
+首先，确认commit的branch是否正确，确认提交的comment是否正确，全都正确后，
+在用操作选项@option{--dry-run}确认push的branch是否正确，使用@command{git log -p 1234567..987654}检查提交列表。
+使用@command{git status}可以查看是否有忘记提交的修改项。
+
+然后代码通过测试之后才可以用。
+
+@itemize
+@item @command{make distclean}
+@item @command{/path/to/ffmpeg/configure}
+@item @command{make fate}
+@item 如果提示获得samples错误的，可以执行@command{make fate-rsync} 然后再测试。
+@end itemize
+
+确认在push之前所有的branch已经check过。如果增加了一个新的功能，需要做一个FATE测试一下，会更好。
+
+每一个提交都应该在test suite测试通过。
+
+如果测试通过，你可以发email给ffmpeg-devel请求merge，你也可以直接push，但是这么做不推荐。
+
+@chapter Server 问题
+
+联系项目管理员 @email{root@@ffmpeg.org}，如果你有任何Git服务器相关的问题。

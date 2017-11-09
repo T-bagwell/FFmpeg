@@ -93,6 +93,7 @@ static int write_packet(AVFormatContext *s, AVPacket *pkt)
             struct tm *tm, tmpbuf;
             time(&now0);
             tm = localtime_r(&now0, &tmpbuf);
+            av_log(s, AV_LOG_ERROR, "the time s = %d\n", tm->sec);
             if (!strftime(filename, sizeof(filename), img->path, tm)) {
                 av_log(s, AV_LOG_ERROR, "Could not get frame filename with strftime\n");
                 return AVERROR(EINVAL);
